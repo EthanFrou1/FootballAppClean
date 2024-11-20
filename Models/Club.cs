@@ -10,5 +10,7 @@ namespace FootballApp.Models
 
         [Column("code_postal")]
         public string CodePostal { get; set; }  // Code postal du club
+
+        //test
     }
 }
