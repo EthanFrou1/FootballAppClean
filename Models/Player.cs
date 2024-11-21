@@ -14,5 +14,8 @@ namespace FootballApp.Models
         public int TeamId { get; set; }
 
         public DateTime DateOfBirth { get; set; } 
+
+        // Relation avec PlayerStats
+        public ICollection<PlayerStats>? PlayerStats { get; set; }
     }
 }

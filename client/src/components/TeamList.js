@@ -1,48 +1,68 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Card, CardContent, Typography, CircularProgress, Box, Button } from '@mui/material';
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+  Box,
+  Button,
+  Avatar,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+} from '@mui/material';
 
 function TeamList() {
-  const [teams, setTeams] = useState([]); // Liste des équipes
-  const [players, setPlayers] = useState([]); // Liste des joueurs
+  const [teams, setTeams] = useState([]); // Liste des équipes avec joueurs
   const [loading, setLoading] = useState(true); // État de chargement
   const [error, setError] = useState(null); // Gestion des erreurs
   const [showPlayers, setShowPlayers] = useState(null); // Gestion de l'affichage des joueurs
+  const [loadingPlayers, setLoadingPlayers] = useState(null); // Gestion des chargements individuels
 
   useEffect(() => {
-    // Charger les équipes et les joueurs dès le chargement du composant
-    const fetchTeamsAndPlayers = async () => {
+    const fetchTeamsWithPlayers = async () => {
       try {
-        setLoading(true);
-
-        // Charger les équipes
-        const teamResponse = await fetch('http://localhost:5070/api/team'); // Remplace avec ton URL d'API pour les équipes
-        const teamData = await teamResponse.json();
-        setTeams(teamData);
-
-        // Charger tous les joueurs
-        const playerResponse = await fetch('http://localhost:5070/api/player'); // Remplace avec ton URL d'API pour les joueurs
-        const playerData = await playerResponse.json();
-        setPlayers(playerData);
-
-        setLoading(false);
+          setLoading(true);
+          const response = await fetch('http://localhost:5070/api/team/with-players');
+          const data = await response.json();
+  
+          // Vérifie que `data` est un tableau
+          if (Array.isArray(data)) {
+              setTeams(data);
+          } else {
+              console.error("La réponse de l'API n'est pas un tableau :", data);
+              setError("Données invalides reçues de l'API.");
+          }
       } catch (err) {
-        console.error('Erreur de chargement:', err);
-        setError('Une erreur est survenue lors du chargement des données.');
-        setLoading(false);
+          console.error('Erreur de chargement:', err);
+          setError('Une erreur est survenue lors du chargement des données.');
+      } finally {
+          setLoading(false);
       }
-    };
+  };
+  
 
-    fetchTeamsAndPlayers();
+    fetchTeamsWithPlayers();
   }, []);
 
   const handleTogglePlayers = (teamId) => {
-    setShowPlayers(showPlayers === teamId ? null : teamId); // Basculer l'affichage des joueurs
+    if (showPlayers === teamId) {
+      setShowPlayers(null);
+    } else {
+      setLoadingPlayers(teamId);
+      setTimeout(() => {
+        setShowPlayers(teamId);
+        setLoadingPlayers(null);
+      }, 500); // Simule une attente
+    }
   };
 
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4 }}>
-
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <CircularProgress />
@@ -53,52 +73,49 @@ function TeamList() {
           </Typography>
         ) : (
           <Grid container spacing={4}>
-            {teams.length > 0 ? (
-              teams.map((team) => (
-                <Grid item xs={12} sm={6} md={4} key={team.id}>
-                  <Card sx={{ minWidth: 275 }}>
-                    <CardContent>
-                      <Typography variant="h6" component="div">
-                        {team.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {team.city}
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleTogglePlayers(team.id)}
-                        sx={{ mt: 2 }}
-                      >
-                        {showPlayers === team.id ? 'Voir moins' : 'Voir les joueurs'}
-                      </Button>
-
-                      {showPlayers === team.id && (
-                        <Box sx={{ mt: 2 }}>
-                          {players.filter((player) => player.teamId === team.id).length > 0 ? (
-                            players
-                              .filter((player) => player.teamId === team.id)
-                              .map((player) => (
-                                <Typography key={player.id} variant="body2">
-                                  {player.firstName} {player.lastName} - {player.position}
-                                </Typography>
-                              ))
-                          ) : (
-                            <Typography variant="body2" color="text.secondary">
-                              Aucun joueur trouvé.
-                            </Typography>
-                          )}
-                        </Box>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))
-            ) : (
-              <Typography variant="body1" color="text.secondary" align="center">
-                Aucune équipe trouvée.
-              </Typography>
-            )}
+            {teams.map((team) => (
+              <Grid item xs={12} sm={6} md={4} key={team.id}>
+                <Card sx={{ minWidth: 275 }}>
+                  <CardContent>
+                    <Typography variant="h6" component="div">{team.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">{team.city}</Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleTogglePlayers(team.id)}
+                      sx={{ mt: 2 }}
+                    >
+                      {loadingPlayers === team.id ? (
+                        <CircularProgress size={20} />
+                      ) : showPlayers === team.id ? 'Voir moins' : 'Voir les joueurs'}
+                    </Button>
+                    {showPlayers === team.id && (
+                      <Box sx={{ mt: 2 }}>
+                        {team.players.length > 0 ? (
+                          <List>
+                            {team.players.map((player) => (
+                              <ListItem key={player.id}>
+                                <ListItemAvatar>
+                                  <Avatar>{player.firstName[0]}</Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                  primary={`${player.firstName} ${player.lastName}`}
+                                  secondary={player.position}
+                                />
+                              </ListItem>
+                            ))}
+                          </List>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">
+                            Aucun joueur trouvé.
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         )}
       </Box>

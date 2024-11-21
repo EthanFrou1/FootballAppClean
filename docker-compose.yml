@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: foot3000db
     ports:
       - "3306:3306"
-    volumes:
+    volumes:  
       - db_data:/var/lib/mysql
 
   app:

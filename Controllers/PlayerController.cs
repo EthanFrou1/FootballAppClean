@@ -59,5 +59,36 @@ namespace FootballApp.Controllers
             return Ok(players);
         }
 
+        // GET: api/PlayerStats/5
+        [HttpGet("playerstats/{playerId}")]
+        public async Task<ActionResult<PlayerStats>> GetPlayerStats(int playerId)
+        {
+            var playerStats = await _context.PlayerStats
+                                              .FirstOrDefaultAsync(ps => ps.PlayerId == playerId);
+
+            if (playerStats == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(playerStats);
+        }
+
+        // GET: api/PlayerStats/{playerId}/{matchId}
+        [HttpGet("playerstats/{playerId}/{matchId}")]
+        public async Task<ActionResult<PlayerStats>> GetPlayerStats(int playerId, int matchId)
+        {
+            var playerStats = await _context.PlayerStats
+                                            .FirstOrDefaultAsync(ps => ps.PlayerId == playerId && ps.MatchId == matchId);
+
+            if (playerStats == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(playerStats);
+        }
+
+
     }
 }

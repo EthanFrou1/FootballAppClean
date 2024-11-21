@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace FootballApp.Models
 {
@@ -12,7 +13,8 @@ namespace FootballApp.Models
         public int ClubId { get; set; }
 
         // Navigation property pour récupérer les joueurs de l'équipe
-        public ICollection<Player> Players { get; set; }
+        [JsonIgnore]
+        public ICollection<Player>? Players { get; set; }
     }
 
 }

@@ -1,16 +1,18 @@
+// src/pages/MatchPage.js
+
 import React from 'react';
-import TeamList from '../components/TeamList'; 
+import MatchList from '../components/MatchList'; 
 import { Typography, Box } from '@mui/material';
 
-const TeamPage = () => {
+const MatchPage = () => {
   return (
     <Box sx={{ textAlign: 'center', my: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Liste des Équipes
+        Résumé des matchs passés
       </Typography>
-      <TeamList />
+      <MatchList />
     </Box>
   );
 };
 
-export default TeamPage;
+export default MatchPage;

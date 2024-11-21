@@ -99,3 +99,4 @@
 /home/es_prepa_dev/Documents/FootballApp/bin/Debug/net8.0/client/package-lock.json
 /home/es_prepa_dev/Documents/FootballApp/bin/Debug/net8.0/client/package.json
 /home/es_prepa_dev/Documents/FootballApp/bin/Debug/net8.0/client/public/manifest.json
+/home/es_prepa_dev/Documents/FootballApp/obj/Debug/net8.0/FootballApp.sourcelink.json

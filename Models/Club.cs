@@ -11,6 +11,7 @@ namespace FootballApp.Models
         [Column("code_postal")]
         public string CodePostal { get; set; }  // Code postal du club
 
-        //test
+        // Navigation property pour récupérer les équipes
+        public ICollection<Team>? Teams { get; set; }
     }
 }

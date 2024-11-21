@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using FootballApp.Models; // Assurez-vous d'importer le bon namespace
+using FootballApp.Models;
 
 public class FootballContext : DbContext
 {
@@ -9,6 +9,9 @@ public class FootballContext : DbContext
 
     // Propriété DbSet pour la table Clubs
     public DbSet<Club> Clubs { get; set; }
+    
+    public DbSet<Matches> Matches { get; set; }
+    public DbSet<PlayerStats> PlayerStats { get; set; }
 
     public FootballContext(DbContextOptions<FootballContext> options)
         : base(options)

@@ -18,14 +18,6 @@ namespace FootballApp.Controllers
             _context = context;
         }
 
-        // GET: api/Club (Obtenir tous les clubs)
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Club>>> GetClubs()
-        {
-            var clubs = await _context.Clubs.ToListAsync();  // Récupérer tous les clubs
-            return Ok(clubs); // Retourner la liste des clubs
-        }
-
         // GET: api/Club/cities (Obtenir toutes les villes)
         [HttpGet("cities")]
         public async Task<ActionResult<IEnumerable<string>>> GetCities()
@@ -53,6 +45,26 @@ namespace FootballApp.Controllers
 
             return Ok(clubs);
         }
+
+        // GET: api/club
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Club>>> GetAllClubs()
+        {
+            var clubs = await _context.Clubs.ToListAsync();
+            return Ok(clubs);
+        }
+
+        // GET: api/club-with-teams
+        [HttpGet("club-with-teams")]
+        public async Task<ActionResult<IEnumerable<Club>>> GetClubsWithTeams()
+        {
+            // Utilisation de Include pour charger les équipes associées à chaque club
+            var clubs = await _context.Clubs.Include(c => c.Teams).ToListAsync();
+
+            // Retourner la liste des clubs avec leurs équipes associées
+            return Ok(clubs);
+        }
+
 
     }
 }
