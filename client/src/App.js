@@ -13,6 +13,8 @@ import MatchPage from './pages/MatchPage'; // Page des matchs
 import MatchDetailsPage from './pages/MatchDetailsPage'; // Page de détails d'un match
 import PlayerDetailsPage from './pages/PlayerDetailsPage'; // Page de détails d'un joueur
 import AddMatchPage from './pages/AddMatchPage'; // Page pour ajouter un match
+import TeamMatches from './components/TeamMatches';
+import CompositionPage from './components/CompositionPage';
 
 function App() {
   const [anchorElAdd, setAnchorElAdd] = useState(null); // Gestion du menu "Ajouter"
@@ -92,6 +94,9 @@ function App() {
               <MenuItem component={Link} to="/equipes" onClick={handleCloseView}>
                 Voir les Équipes
               </MenuItem>
+              <MenuItem component={Link} to={`/team/matches`} onClick={handleCloseView}>
+                Agenda d'une Équipe
+              </MenuItem>
             </Menu>
 
             {/* Menu "Matches" */}
@@ -125,6 +130,8 @@ function App() {
             <Route path="/match/:id" element={<MatchDetailsPage />} /> {/* Détails d'un match */}
             <Route path="/player/playerstats/:playerId/:matchId" element={<PlayerDetailsPage />} />
             <Route path="/ajouter-match" element={<AddMatchPage />} />
+            <Route path="/team/matches" element={<TeamMatches />} />
+            <Route path="/composition/:matchId/:teamId" element={<CompositionPage />} />
           </Routes>
         </Box>
       </Box>

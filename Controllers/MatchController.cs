@@ -137,5 +137,90 @@ namespace FootballApp.Controllers
             return Ok(teamsData);  // Retourne les données des deux équipes
         }
 
+        // Endpoint pour récupérer les matchs d'une équipe spécifique
+        [HttpGet("team/{teamId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetMatchesByTeam(int teamId)
+        {
+            var matches = await _context.Matches
+                .Where(m => m.HomeTeamId == teamId || m.AwayTeamId == teamId)
+                .Include(m => m.HomeTeam)
+                .Include(m => m.AwayTeam)
+                .Select(m => new
+                {
+                    MatchId = m.Id,
+                    MatchDate = m.MatchDate,
+                    HomeTeam = new { m.HomeTeam.Id, m.HomeTeam.Name },
+                    AwayTeam = new { m.AwayTeam.Id, m.AwayTeam.Name },
+                    HomeTeamScore = m.HomeTeamScore,
+                    AwayTeamScore = m.AwayTeamScore
+                })
+                .ToListAsync();
+
+            if (!matches.Any())
+            {
+                return NotFound("Aucun match trouvé pour cette équipe.");
+            }
+
+            return Ok(matches);
+        }
+
+        // Endpoint pour récupérer la composition d'un match (joueurs affectés à ce match)
+        [HttpGet("{matchId}/composition")]
+        public async Task<ActionResult<object>> GetMatchComposition(int matchId)
+        {
+            var match = await _context.Matches
+                .Include(m => m.PlayerStats)
+                .ThenInclude(ps => ps.Player)
+                .FirstOrDefaultAsync(m => m.Id == matchId);
+
+            if (match == null)
+            {
+                return NotFound("Le match n'existe pas.");
+            }
+
+            // Récupérer la composition (les joueurs affectés au match)
+            var composition = match.PlayerStats.Select(ps => new
+            {
+                ps.Player.FirstName,
+                ps.Player.LastName,
+                ps.Player.Position,
+                //ps.Role // Si vous avez un rôle (titulaire, remplaçant, etc.)
+            }).ToList();
+
+            return Ok(composition);
+        }
+
+        // Endpoint pour mettre à jour la composition d'un match
+        [HttpPut("{matchId}/composition")]
+        public async Task<IActionResult> UpdateMatchComposition(int matchId, [FromBody] List<PlayerStats> updatedComposition)
+        {
+            var match = await _context.Matches
+                .Include(m => m.PlayerStats)
+                .ThenInclude(ps => ps.Player)
+                .FirstOrDefaultAsync(m => m.Id == matchId);
+
+            if (match == null)
+            {
+                return NotFound("Le match n'existe pas.");
+            }
+
+            // Supprimer les anciennes compositions (si nécessaire)
+            _context.PlayerStats.RemoveRange(match.PlayerStats);
+
+            // Ajouter les nouvelles compositions
+            foreach (var playerStat in updatedComposition)
+            {
+                playerStat.MatchId = matchId;
+                _context.PlayerStats.Add(playerStat);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Composition mise à jour.");
+        }
+
+
+
+
     }
 }

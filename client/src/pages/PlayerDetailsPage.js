@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Grid, Paper, Button } from '@mui/material';
+import { Box, Typography, CircularProgress, Grid, Paper, Button, Divider } from '@mui/material';
 
 const PlayerDetailsPage = () => {
-  const { playerId, matchId } = useParams(); // Récupère les IDs du joueur et du match
+  const { playerId, matchId } = useParams(); 
   const [playerStats, setPlayerStats] = useState(null);
-  const [playerInfo, setPlayerInfo] = useState(null); // Nouveau state pour les informations du joueur
+  const [playerInfo, setPlayerInfo] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook de navigation pour revenir à la page précédente
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Récupérer les informations du joueur
     const fetchPlayerInfo = async () => {
       try {
         const response = await fetch(`http://localhost:5070/api/player/${playerId}`);
@@ -25,7 +24,6 @@ const PlayerDetailsPage = () => {
       }
     };
 
-    // Récupérer les statistiques du joueur pour ce match spécifique
     const fetchPlayerStats = async () => {
       try {
         const response = await fetch(`http://localhost:5070/api/player/playerstats/${playerId}/${matchId}`);
@@ -44,89 +42,96 @@ const PlayerDetailsPage = () => {
       }
     };
 
-    // Appeler les deux fonctions de récupération de données
     fetchPlayerInfo();
     fetchPlayerStats();
   }, [playerId, matchId]);
 
   if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
-  if (error) return (
-    <Box sx={{ textAlign: 'center', mt: 4 }}>
-      <Typography color="error">{error}</Typography>
-      {/* Ajouter un bouton pour revenir à la page du match */}
-      <Button 
-        variant="contained" 
-        color="primary" 
-        onClick={() => navigate(`/match/${matchId}`)} 
-        sx={{ mt: 2 }}
-      >
-        Revenir au match
-      </Button>
-    </Box>
-  );
+  if (error) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 4 }}>
+        <Typography color="error" variant="h6">{error}</Typography>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => navigate(`/match/${matchId}`)} 
+          sx={{ mt: 2 }}
+        >
+          Revenir au match
+        </Button>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ textAlign: 'center', mt: 4, px: 3 }}>
-      
-      {/* Affichage du nom du joueur */}
-      {playerInfo ? (
-        <Typography variant="h6" color="textSecondary" sx={{ mb: 3 }}>
-          Statistiques pour {playerInfo.firstName} {playerInfo.lastName}
-        </Typography>
-      ) : (
-        <Typography variant="h6" color="textSecondary" sx={{ mb: 3 }}>
-          Statistiques pour ce joueur
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', padding: 2 }}>
+      <Typography variant="h4" textAlign="center" sx={{ fontWeight: 'bold', marginBottom: 4 }}>
+        Détails du Joueur
+      </Typography>
+
+      {playerInfo && (
+        <Typography variant="h5" textAlign="center" sx={{ fontWeight: 'bold', color: 'text.primary', marginBottom: 2 }}>
+          {playerInfo.firstName} {playerInfo.lastName}
         </Typography>
       )}
 
-      <Grid container spacing={2} justifyContent="center">
-        <Grid item xs={12} sm={6} md={4}>
-          {/* Boîte contenant les statistiques du joueur */}
-          <Paper elevation={6} sx={{ padding: 3, borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Statistiques pour ce match
+      <Divider sx={{ marginBottom: 4 }} />
+
+      <Grid container justifyContent="center" spacing={4}>
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+              Statistiques du Match
             </Typography>
-            
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography>Buts :</Typography>
-              <Typography color={playerStats.goals === null ? 'text.secondary' : 'primary'}>
-                {playerStats.goals ?? 'Non disponible'}
+
+            <Box sx={{ marginBottom: 1 }}>
+              <Typography display="flex" justifyContent="space-between">
+                <span>Buts :</span>
+                <span style={{ fontWeight: 'bold', color: playerStats.goals > 0 ? 'green' : 'text.secondary' }}>
+                  {playerStats.goals ?? 'Non disponible'}
+                </span>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography>Passes :</Typography>
-              <Typography color={playerStats.assists === null ? 'text.secondary' : 'primary'}>
-                {playerStats.assists ?? 'Non disponible'}
+            <Box sx={{ marginBottom: 1 }}>
+              <Typography display="flex" justifyContent="space-between">
+                <span>Passes :</span>
+                <span style={{ fontWeight: 'bold', color: playerStats.assists > 0 ? 'blue' : 'text.secondary' }}>
+                  {playerStats.assists ?? 'Non disponible'}
+                </span>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography>Cartons jaunes :</Typography>
-              <Typography color={playerStats.yellowCards === null ? 'text.secondary' : 'primary'}>
-                {playerStats.yellowCards ?? 'Non disponible'}
+            <Box sx={{ marginBottom: 1 }}>
+              <Typography display="flex" justifyContent="space-between">
+                <span>Cartons jaunes :</span>
+                <span style={{ fontWeight: 'bold', color: playerStats.yellowCards > 0 ? 'orange' : 'text.secondary' }}>
+                  {playerStats.yellowCards ?? 'Non disponible'}
+                </span>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography>Cartons rouges :</Typography>
-              <Typography color={playerStats.redCards === null ? 'text.secondary' : 'primary'}>
-                {playerStats.redCards ?? 'Non disponible'}
+            <Box sx={{ marginBottom: 1 }}>
+              <Typography display="flex" justifyContent="space-between">
+                <span>Cartons rouges :</span>
+                <span style={{ fontWeight: 'bold', color: playerStats.redCards > 0 ? 'red' : 'text.secondary' }}>
+                  {playerStats.redCards ?? 'Non disponible'}
+                </span>
               </Typography>
             </Box>
           </Paper>
         </Grid>
       </Grid>
 
-      {/* Bouton pour revenir au match */}
-      <Button 
-        variant="contained" 
-        color="primary" 
-        onClick={() => navigate(`/match/${matchId}`)} 
-        sx={{ mt: 3 }}
-      >
-        Revenir au match
-      </Button>
+      <Box sx={{ textAlign: 'center', marginTop: 4 }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => navigate(`/match/${matchId}`)}
+        >
+          Revenir au match
+        </Button>
+      </Box>
     </Box>
   );
 };
